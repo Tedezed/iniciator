@@ -1,0 +1,115 @@
+#!/bin/bash
+
+parent_dir=`pwd`
+
+#-- Ansible --#
+function init_ansible {
+	# Dir
+	mkdir -p "$parent_dir/roles/install/tasks" \
+				"$parent_dir/test" \
+				"$parent_dir/credentials"
+
+	# Files
+	touch "$parent_dir/README.md" \
+			"$parent_dir/base.yml" \
+			"$parent_dir/hosts" \
+			"$parent_dir/roles/install/tasks/main.yaml"
+}
+#-- Ansible --#
+
+#-- Docker --#
+function init_docker {
+	# Dir
+	mkdir -p "$parent_dir/custom/files" \
+				"$parent_dir/custom/executable/bash" \
+				"$parent_dir/custom/entrypoint.d" \
+				"$parent_dir/env" \
+				"$parent_dir/volumes"
+
+	# Echo files
+	echo $"#!make
+
+CONTAINER_REPO:=tedezed
+CONTAINER_IMAGE:=test
+CONTAINER_VERSION:=0.1
+
+build:
+	docker build -f Dockerfile -t ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION} .
+
+build-no-cache:
+	docker build -f Dockerfile -t ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION} --no-cache .
+
+save:
+	docker save ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION} -o ${CONTAINER_IMAGE}-${CONTAINER_VERSION}.docker
+
+dev:
+	docker-compose -f dev.yaml up
+
+prod:
+	docker-compose -f prod.yaml up
+
+all: build
+" > "$parent_dir/Makefile"
+
+	echo $"version: '0.1'
+services:
+  test:
+    image: tedezed/test:0.1
+    ports:
+      - "80:80"
+    env_file:
+      - ./env/prod.env
+    #links:
+    #  - pgdb
+    volumes:
+      - ./custom:/custom
+" > "$parent_dir/prod.yaml"
+	
+	echo $"version: '0.1'
+services:
+  test:
+    image: tedezed/test:0.1
+    ports:
+      - "80:80"
+    env_file:
+      - ./env/dev.env
+    #links:
+    #  - pgdb
+    volumes:
+      - ./custom:/custom
+" > "$parent_dir/dev.yaml"
+
+	echo $"#!/bin/bash
+set -e
+
+echo "[INFO] Exec entrypoint.d"
+sudo chown prod -R /mnt/common/entrypoint.d/*
+sudo chmod +x -R /mnt/common/entrypoint.d/*
+run-parts --regex="^[a-zA-Z0-9._-]+$" --report /mnt/common/entrypoint.d
+
+exit 0
+" > "$parent_dir/custom/executable/bash/entrypoint.sh"
+
+	echo $"#!/bin/bash
+set -e
+
+echo "version: 0.1"
+
+exit 0
+" > "$parent_dir/custom/entrypoint.d/00-init.sh"
+
+	# Files
+	touch "$parent_dir/README.md" \
+			"$parent_dir/env/prod.env" \
+			"$parent_dir/env/dev.env" \
+			"$parent_dir/Dockerfile"
+}
+#-- Docker --#
+
+if [ "$1" == "ansible" ]
+then
+	init_ansible
+elif [ "$1" == "docker" ]
+then
+	init_docker
+fi
