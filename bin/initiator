@@ -27,7 +27,7 @@ function init_docker {
 				"$parent_dir/volumes"
 
 	# Echo files
-	echo $"#!make
+	echo $'#!make
 
 CONTAINER_REPO:=tedezed
 CONTAINER_IMAGE:=test
@@ -49,9 +49,9 @@ prod:
 	docker-compose -f prod.yaml up
 
 all: build
-" > "$parent_dir/Makefile"
+' > "$parent_dir/Makefile"
 
-	echo $"version: '0.1'
+	echo $'version: \'0.1\'
 services:
   test:
     image: tedezed/test:0.1
@@ -63,9 +63,9 @@ services:
     #  - pgdb
     volumes:
       - ./custom:/custom
-" > "$parent_dir/prod.yaml"
+' > "$parent_dir/prod.yaml"
 	
-	echo $"version: '0.1'
+	echo $'version: \'0.1\'
 services:
   test:
     image: tedezed/test:0.1
@@ -77,9 +77,9 @@ services:
     #  - pgdb
     volumes:
       - ./custom:/custom
-" > "$parent_dir/dev.yaml"
+' > "$parent_dir/dev.yaml"
 
-	echo $"#!/bin/bash
+	echo $'#!/bin/bash
 set -e
 
 echo "[INFO] Exec entrypoint.d"
@@ -88,15 +88,15 @@ sudo chmod +x -R /mnt/common/entrypoint.d/*
 run-parts --regex="^[a-zA-Z0-9._-]+$" --report /mnt/common/entrypoint.d
 
 exit 0
-" > "$parent_dir/custom/executable/bash/entrypoint.sh"
+' > "$parent_dir/custom/executable/bash/entrypoint.sh"
 
-	echo $"#!/bin/bash
+	echo $'#!/bin/bash
 set -e
 
 echo "version: 0.1"
 
 exit 0
-" > "$parent_dir/custom/entrypoint.d/00-init.sh"
+' > "$parent_dir/custom/entrypoint.d/00-init.sh"
 
 	# Files
 	touch "$parent_dir/README.md" \

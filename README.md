@@ -1,4 +1,4 @@
-# Iniciator
+# Initiator
 
 ### Install
 
