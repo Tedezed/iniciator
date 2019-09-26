@@ -36,6 +36,12 @@ CONTAINER_VERSION:=0.1
 build:
 	docker build -f Dockerfile -t ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION} .
 
+push:
+	docker push ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION}
+
+gcloud-push:
+	gcloud docker -- push ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION}
+
 build-no-cache:
 	docker build -f Dockerfile -t ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_VERSION} --no-cache .
 
